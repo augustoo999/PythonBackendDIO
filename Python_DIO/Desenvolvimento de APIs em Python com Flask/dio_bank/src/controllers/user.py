@@ -28,7 +28,7 @@ def _list_users():
 
 
 @app.route("/", methods=["GET", "POST"])
-def handle_user():
+def list_or_create_user():
     if request.method == "POST":
         _create_user()
         return {"message": "User created successfully"}, HTTPStatus.CREATED
@@ -58,3 +58,11 @@ def update_user(user_id):
         "id": user.id,
         "username": user.username,
     }
+
+
+@app.route("/<int:user_id>", methods=["DELETE"])
+def delete_user(user_id):
+    user = db.get_or_404(User, user_id)
+    db.session.delete(user)
+    db.session.commit()
+    return "", HTTPStatus.NO_CONTENT

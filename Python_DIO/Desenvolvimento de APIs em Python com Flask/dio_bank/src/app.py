@@ -82,9 +82,10 @@ def create_app(test_config=None):
     jwt.init_app(app)  # Initialize JWT
 
     # Register Blueprints
-    from src.controllers import post, user
+    from src.controllers import auth, post, user
 
     app.register_blueprint(user.app)
     app.register_blueprint(post.app)
+    app.register_blueprint(auth.app)
 
     return app

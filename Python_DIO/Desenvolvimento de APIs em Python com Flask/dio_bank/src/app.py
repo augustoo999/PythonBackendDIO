@@ -4,6 +4,7 @@ from datetime import datetime
 import click
 import sqlalchemy as sa
 from flask import Flask, current_app
+from flask_migrate import Migrate  # Added for database migrations
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -13,6 +14,7 @@ class Base(DeclarativeBase):
 
 
 db = SQLAlchemy(model_class=Base)
+migrate = Migrate()  # Initialize migrate object
 
 
 class User(db.Model):
@@ -73,6 +75,7 @@ def create_app(test_config=None):
 
     # Initialize the database
     db.init_app(app)
+    migrate.init_app(app, db)  # Set up Flask-Migrate
 
     # Register Blueprints
     from src.controllers import post, user

@@ -4,6 +4,7 @@ from datetime import datetime
 import click
 import sqlalchemy as sa
 from flask import Flask, current_app
+from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate  # Added for database migrations
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -15,6 +16,7 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 migrate = Migrate()  # Initialize migrate object
+jwt = JWTManager()
 
 
 class User(db.Model):
@@ -55,6 +57,7 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY="dev",
         SQLALCHEMY_DATABASE_URI="sqlite:///blog.sqlite",
+        JWT_SECRET_KEY="super-secret",  # Change this in production
     )
 
     if test_config is None:
@@ -76,6 +79,7 @@ def create_app(test_config=None):
     # Initialize the database
     db.init_app(app)
     migrate.init_app(app, db)  # Set up Flask-Migrate
+    jwt.init_app(app)  # Initialize JWT
 
     # Register Blueprints
     from src.controllers import post, user

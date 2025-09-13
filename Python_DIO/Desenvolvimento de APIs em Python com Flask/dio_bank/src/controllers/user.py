@@ -1,9 +1,10 @@
 from http import HTTPStatus
 
 from flask import Blueprint, request
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import jwt_required
 from sqlalchemy import inspect
 from src.app import User, db
+from src.utils import requires_role
 
 app = Blueprint("user", __name__, url_prefix="/users")
 
@@ -36,11 +37,8 @@ def _list_users():
 
 @app.route("/", methods=["GET", "POST"])
 @jwt_required()
+@requires_role("admin")
 def list_or_create_user():
-    user_id = get_jwt_identity()
-    user = db.get_or_404(User, user_id)
-    if user.role.name != "admin":
-        return {"message": "Admins only!"}, HTTPStatus.FORBIDDEN
     if request.method == "POST":
         _create_user()
         return {"message": "User created successfully"}, HTTPStatus.CREATED
@@ -58,6 +56,8 @@ def get_user(user_id):
 
 
 @app.route("/<int:user_id>", methods=["PATCH"])
+@jwt_required()
+@requires_role("admin")
 def update_user(user_id):
     user = db.get_or_404(User, user_id)
     data = request.json
@@ -73,6 +73,8 @@ def update_user(user_id):
 
 
 @app.route("/<int:user_id>", methods=["DELETE"])
+@jwt_required()
+@requires_role("admin")
 def delete_user(user_id):
     user = db.get_or_404(User, user_id)
     db.session.delete(user)

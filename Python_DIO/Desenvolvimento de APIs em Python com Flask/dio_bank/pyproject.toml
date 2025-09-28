@@ -13,6 +13,7 @@ dependencies = [
     "flask-migrate",
     "flask-jwt-extended (>=4.7.1,<5.0.0)",
     "pytest",
+    "pytest-mock",
 ]
 
 [tool.pytest.ini_options]

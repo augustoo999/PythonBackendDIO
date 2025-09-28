@@ -1,6 +1,4 @@
 from http import HTTPStatus
-from unittest import mock
-from unittest.mock import patch
 
 import pytest
 from src.utils import eleva_quadrado, requires_role
@@ -33,36 +31,31 @@ def test_eleva_quadrado_fail(test_input, exc_class, msg):
     assert str(exc.value) == msg
 
 
-# def test_requires_role_success():
-#     mock_user = mock.MagicMock()
-#     mock_user.role.name = "admin"
-#     mock_get_jwt_identity = patch("src.utils.get_jwt_identity")
-#     mock_db_get_or_404 = patch("src.utils.db.get_or_404", return_value=mock_user)
-#     mock_get_jwt_identity.start()
-#     mock_db_get_or_404.start()
+def test_requires_role_success(mocker):
+    # Given
+    mock_user = mocker.Mock()
+    mock_user.role.name = "admin"
+    # When
+    mocker.patch("src.utils.get_jwt_identity")
+    mocker.patch("src.utils.db.get_or_404", return_value=mock_user)
 
-#     decorated_function = requires_role("admin")(lambda: "success")
-#     result = decorated_function()
-
-#     assert result == "success"
-
-#     mock_get_jwt_identity.stop()
-#     mock_db_get_or_404.stop()
+    decorated_function = requires_role("admin")(lambda: "success")
+    result = decorated_function()
+    # Then
+    assert result == "success"
 
 
-def test_requires_role_fail():
-    mock_user = mock.MagicMock()
+def test_requires_role_fail(mocker):
+    # Given
+    mock_user = mocker.Mock()
     mock_user.role.name = "normal"
-    mock_get_jwt_identity = patch("src.utils.get_jwt_identity")
-    mock_db_get_or_404 = patch("src.utils.db.get_or_404", return_value=mock_user)
-    mock_get_jwt_identity.start()
-    mock_db_get_or_404.start()
+    # When
+    mocker.patch("src.utils.get_jwt_identity")
+    mocker.patch("src.utils.db.get_or_404", return_value=mock_user)
 
     decorated_function = requires_role("admin")(lambda: "success")
 
     result = decorated_function()
-
-    assert result == ({"User does not have the required role"}, HTTPStatus.FORBIDDEN)
-
-    mock_get_jwt_identity.stop()
-    mock_db_get_or_404.stop()
+    print(result)
+    # Then
+    assert result == ({"message": "Admins only!"}, HTTPStatus.FORBIDDEN)
